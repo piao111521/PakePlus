@@ -64,7 +64,7 @@ def create_table_if_not_exists():
         aka1fullname String, aka2fullname String, aka3fullname String,
         StartDat String, alt1DOB String, alt2DOB String, alt3DOB String,
         ssn String
-    ) ENGINE = MergeTree() ORDER BY ()
+    ) ENGINE = MergeTree() ORDER BY ID
     """
     
     try:
@@ -121,7 +121,7 @@ def import_single_file(file_path, retry_count=RETRY_COUNT):
                 error_msg = f"❌ {filename} - HTTP {response.status_code}: {response.text}"
                 
                 if attempt < retry_count - 1:
-                    print(f"  重试 {attempt + 1}/{retry_count - 1}: {filename}")
+                    print(f"  重试 {attempt + 1}/{retry_count}: {filename}")
                     time.sleep(2)
                     continue
                 else:
@@ -131,7 +131,7 @@ def import_single_file(file_path, retry_count=RETRY_COUNT):
             error_msg = f"❌ {filename} - {str(e)}"
             
             if attempt < retry_count - 1:
-                print(f"  重试 {attempt + 1}/{retry_count - 1}: {filename}")
+                print(f"  重试 {attempt + 1}/{retry_count}: {filename}")
                 time.sleep(2)
                 continue
             else:
@@ -200,15 +200,25 @@ def verify_import():
         return None
 
 
-def generate_final_report(success_count, error_count, total_time, total_rows):
+def generate_final_report(success_count, error_count, total_time, total_rows, start_time_str):
     """生成最终报告"""
     total_files = success_count + error_count
+    
+    # Handle edge case of no files processed
+    if total_files == 0:
+        print("\n" + "=" * 80)
+        print("🎯 导入完成报告")
+        print("=" * 80)
+        print("⚠️ 没有处理任何文件")
+        print("=" * 80)
+        return False
+    
     success_rate = success_count / total_files * 100
     
     print("\n" + "=" * 80)
     print("🎯 导入完成报告")
     print("=" * 80)
-    print(f"开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"开始时间: {start_time_str}")
     print(f"总文件数: {total_files}")
     print(f"成功导入: {success_count}")
     print(f"失败文件: {error_count}")
@@ -236,10 +246,12 @@ def generate_final_report(success_count, error_count, total_time, total_rows):
 
 def main():
     """主执行函数"""
+    start_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
     print("=" * 80)
     print("🚀 SSN数据批量导入工具")
     print("=" * 80)
-    print(f"开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"开始时间: {start_time_str}")
     print(f"Python版本: {sys.version.split()[0]}")
     print(f"目标: {EXPECTED_FILES} 个SSN文件")
     print(f"数据库: {DATABASE}.{TABLE}")
@@ -273,7 +285,7 @@ def main():
     
     # 生成报告
     print("\n📊 生成最终报告...")
-    success = generate_final_report(success_count, error_count, total_time, total_rows)
+    success = generate_final_report(success_count, error_count, total_time, total_rows, start_time_str)
     
     print(f"\n结束时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     

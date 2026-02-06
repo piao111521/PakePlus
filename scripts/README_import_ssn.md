@@ -131,8 +131,10 @@ CREATE TABLE IF NOT EXISTS default.ssn_records (
     alt2DOB String,
     alt3DOB String,
     ssn String
-) ENGINE = MergeTree() ORDER BY ()
+) ENGINE = MergeTree() ORDER BY ID
 ```
+
+**Note:** The table is ordered by the `ID` field for improved query performance and efficient data pruning. If your use case requires a different ordering, you can modify the `ORDER BY` clause in the script.
 
 ## Output Example
 
