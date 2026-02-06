@@ -18,14 +18,16 @@ This script is designed to batch import SSN (Social Security Number) data files 
 
 The script can be configured by modifying these parameters at the top of the file:
 
+The script supports configuration via environment variables or by modifying the script directly:
+
 ```python
-CLICKHOUSE_HOST = "localhost:8123"      # ClickHouse server address
-DATABASE = "default"                    # Target database name
-TABLE = "ssn_records"                   # Target table name
-SSN_PATTERN = "/mnt/e/ssn/ssn_out_*.txt"  # File pattern for SSN files
-EXPECTED_FILES = 188                    # Expected number of files
-RETRY_COUNT = 3                         # Number of retry attempts per file
-DELAY_BETWEEN_FILES = 0.3              # Delay in seconds between file imports
+CLICKHOUSE_HOST = "localhost:8123"      # ClickHouse server address (env: CLICKHOUSE_HOST)
+DATABASE = "default"                    # Target database name (env: CLICKHOUSE_DATABASE)
+TABLE = "ssn_records"                   # Target table name (env: CLICKHOUSE_TABLE)
+SSN_PATTERN = "/mnt/e/ssn/ssn_out_*.txt"  # File pattern for SSN files (env: SSN_FILE_PATTERN)
+EXPECTED_FILES = 188                    # Expected number of files (env: EXPECTED_FILE_COUNT)
+RETRY_COUNT = 3                         # Number of retry attempts per file (env: RETRY_COUNT)
+DELAY_BETWEEN_FILES = 0.3              # Delay in seconds between file imports (env: DELAY_BETWEEN_FILES)
 ```
 
 ## Prerequisites
@@ -47,7 +49,46 @@ DELAY_BETWEEN_FILES = 0.3              # Delay in seconds between file imports
 python scripts/import_ssn.py
 ```
 
-### Configuration Steps
+### Using Environment Variables
+
+You can configure the script using environment variables without modifying the code:
+
+```bash
+# Linux/Mac
+export CLICKHOUSE_HOST="your-host:8123"
+export SSN_FILE_PATTERN="/path/to/your/ssn/ssn_out_*.txt"
+export EXPECTED_FILE_COUNT=188
+python scripts/import_ssn.py
+
+# Or inline
+CLICKHOUSE_HOST="your-host:8123" SSN_FILE_PATTERN="/path/to/ssn/*.txt" python scripts/import_ssn.py
+```
+
+```powershell
+# Windows PowerShell
+$env:CLICKHOUSE_HOST="your-host:8123"
+$env:SSN_FILE_PATTERN="C:\path\to\ssn\ssn_out_*.txt"
+$env:EXPECTED_FILE_COUNT=188
+python scripts/import_ssn.py
+```
+
+### Using Configuration File
+
+1. Copy the example configuration:
+   ```bash
+   cp scripts/config/import_ssn.env.example scripts/config/import_ssn.env
+   ```
+
+2. Edit the configuration file with your settings
+
+3. Source the configuration and run:
+   ```bash
+   # Linux/Mac
+   source scripts/config/import_ssn.env
+   python scripts/import_ssn.py
+   ```
+
+### Configuration Steps (Direct Modification)
 
 1. **Update File Pattern**: Modify `SSN_PATTERN` to match your file location
    ```python

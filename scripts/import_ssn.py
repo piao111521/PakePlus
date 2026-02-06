@@ -5,14 +5,14 @@ import time
 import sys
 from datetime import datetime
 
-# 配置参数
-CLICKHOUSE_HOST = "localhost:8123"
-DATABASE = "default"
-TABLE = "ssn_records"
-SSN_PATTERN = "/mnt/e/ssn/ssn_out_*.txt"
-EXPECTED_FILES = 188
-RETRY_COUNT = 3
-DELAY_BETWEEN_FILES = 0.3  # 秒
+# 配置参数 (可通过环境变量覆盖)
+CLICKHOUSE_HOST = os.getenv("CLICKHOUSE_HOST", "localhost:8123")
+DATABASE = os.getenv("CLICKHOUSE_DATABASE", "default")
+TABLE = os.getenv("CLICKHOUSE_TABLE", "ssn_records")
+SSN_PATTERN = os.getenv("SSN_FILE_PATTERN", "/mnt/e/ssn/ssn_out_*.txt")
+EXPECTED_FILES = int(os.getenv("EXPECTED_FILE_COUNT", "188"))
+RETRY_COUNT = int(os.getenv("RETRY_COUNT", "3"))
+DELAY_BETWEEN_FILES = float(os.getenv("DELAY_BETWEEN_FILES", "0.3"))  # 秒
 
 
 def test_clickhouse_connection():
